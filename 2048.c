@@ -10,23 +10,44 @@
 #define D 80
 #define R 77
 #define ESC 27
-int a[5][5], idle, poly[17][8] = {{200, 150, 255, 150, 255, 205, 200, 205}, {255, 150, 310, 150, 310, 205, 255, 205}, {310, 150, 365, 150, 365, 205, 310, 205}, {365, 150, 420, 150, 420, 205, 365, 205}, {200, 205, 255, 205, 255, 260, 200, 260}, {255, 205, 310, 205, 310, 260, 255, 260}, {310, 205, 365, 205, 365, 260, 310, 260}, {365, 205, 420, 205, 420, 260, 365, 260}, {200, 260, 255, 260, 255, 315, 200, 315}, {255, 260, 310, 260, 310, 315, 255, 315}, {310, 260, 365, 260, 365, 315, 310, 315}, {365, 260, 420, 260, 420, 315, 365, 315}, {200, 315, 255, 315, 255, 370, 200, 370}, {255, 315, 310, 315, 310, 370, 255, 370}, {310, 315, 365, 315, 365, 370, 310, 370}, {365, 315, 420, 315, 420, 370, 365, 370}};
 
+int a[5][5], poly[17][8] = {{200, 150, 255, 150, 255, 205, 200, 205},
+                            {255, 150, 310, 150, 310, 205, 255, 205},
+                            {310, 150, 365, 150, 365, 205, 310, 205},
+                            {365, 150, 420, 150, 420, 205, 365, 205},
+                            {200, 205, 255, 205, 255, 260, 200, 260},
+                            {255, 205, 310, 205, 310, 260, 255, 260},
+                            {310, 205, 365, 205, 365, 260, 310, 260},
+                            {365, 205, 420, 205, 420, 260, 365, 260},
+                            {200, 260, 255, 260, 255, 315, 200, 315},
+                            {255, 260, 310, 260, 310, 315, 255, 315},
+                            {310, 260, 365, 260, 365, 315, 310, 315},
+                            {365, 260, 420, 260, 420, 315, 365, 315},
+                            {200, 315, 255, 315, 255, 370, 200, 370},
+                            {255, 315, 310, 315, 310, 370, 255, 370},
+                            {310, 315, 365, 315, 365, 370, 310, 370},
+                            {365, 315, 420, 315, 420, 370, 365, 370}};
+
+int idle, flag;
 long int sc;
+void beep(int, int);
 void main()
 {
-    void init(), status(), disp(), bravo();
-    int s, er, i, j, k, checkran(), check(), gameover();
+    void init(), disp();
+    int s, er, i, j, k, checkran(), check(), status(int);
     char c;
 re:
+    flag = 1;
+    sc = 0;
     clrscr();
     init();
     disp();
     flushall();
-    for (sc = 0; c != ESC;)
+    for (; c != ESC;)
     {
         idle = 0;
         c = getch();
+        beep(3000, 20);
         switch (c)
         {
         case D:
@@ -57,17 +78,18 @@ re:
             switch (er)
             {
             case -1:
-                if (gameover() == 1)
+                if (status(-1) == 1)
                     goto re;
                 break;
             case 1:
-                bravo();
+                if (status(1) == 2)
+                    goto re;
                 break;
             case 0:
                 er = check();
                 break;
             }
-            if (er == -1 && gameover() == 1)
+            if (er == -1 && status(-1) == 1)
                 goto re;
             break;
 
@@ -99,17 +121,18 @@ re:
             switch (er)
             {
             case -1:
-                if (gameover() == 1)
+                if (status(-1) == 1)
                     goto re;
                 break;
             case 1:
-                bravo();
+                if (status(1) == 2)
+                    goto re;
                 break;
             case 0:
                 er = check();
                 break;
             }
-            if (er == -1 && gameover() == 1)
+            if (er == -1 && status(-1) == 1)
                 goto re;
             break;
 
@@ -141,17 +164,18 @@ re:
             switch (er)
             {
             case -1:
-                if (gameover() == 1)
+                if (status(-1) == 1)
                     goto re;
                 break;
             case 1:
-                bravo();
+                if (status(1) == 2)
+                    goto re;
                 break;
             case 0:
                 er = check();
                 break;
             }
-            if (er == -1 && gameover() == 1)
+            if (er == -1 && status(-1) == 1)
                 goto re;
             break;
 
@@ -183,17 +207,18 @@ re:
             switch (er)
             {
             case -1:
-                if (gameover() == 1)
+                if (status(-1) == 1)
                     goto re;
                 break;
             case 1:
-                bravo();
+                if (status(1) == 2)
+                    goto re;
                 break;
             case 0:
                 er = check();
                 break;
             }
-            if (er == -1 && gameover() == 1)
+            if (er == -1 && status(-1) == 1)
                 goto re;
             break;
         }
@@ -213,10 +238,13 @@ int checkran(void)
     int i, j, k;
     if (idle == 0)
         return 0;
-    for (i = 0; i < 4; i++)
+    for (i = 0; (i < 4 && flag == 1); i++)
         for (j = 0; j < 4; j++)
             if (a[i][j] == 2048)
+            {
+                flag--;
                 return 1;
+            }
     randomize();
     if (random(100) % 2 == 0)
     {
@@ -244,15 +272,9 @@ int checkran(void)
                 return 0;
     return -1;
 }
-void bravo(void)
-{
-    int b[100];
 
-    fillpoly(4, b);
-}
 void disp(void)
 {
-
     int i, j, k, x, y, b[8] = {205, 410, 415, 410, 415, 445, 205, 445};
     char buf[] = "blah!", BUF[] = "BLAH!";
     for (k = 0, y = 160, i = 0; i < 4; i++, y += 56)
@@ -334,6 +356,13 @@ void disp(void)
         }
 }
 
+void beep(int s, int d)
+{
+    sound(s);
+    delay(d);
+    nosound();
+}
+
 void init(void)
 {
     int gd, gm, er, i, j;
@@ -362,12 +391,12 @@ void init(void)
     else if (random(485) % 3 == 0)
     {
         a[1][1] = 2;
-        a[0][3] = 2;
+        a[0][3] = 4;
     }
     else if (random(782) % 2 != 0)
     {
         a[0][0] = 2;
-        a[1][3] = 4;
+        a[1][3] = 2;
     }
     else
     {
@@ -375,6 +404,7 @@ void init(void)
         a[2][2] = 2;
     }
     rectangle(1, 1, getmaxx() - 1, getmaxy() - 1);
+    rectangle(3, 3, getmaxx() - 3, getmaxy() - 3);
     setcolor(14);
     setlinestyle(0, 0, 3);
     settextstyle(0, 0, 7);
@@ -384,39 +414,118 @@ void init(void)
     for (i = 0; i < 16; i++)
         fillpoly(4, poly[i]);
 }
-int gameover()
+
+int status(int sta)
 {
-    int con, b[8] = {205, 90, 415, 90, 415, 135, 205, 135};
-    char c;
+    int s, con;
+    int b[8] = {205, 90, 415, 90, 415, 135, 205, 135};
+    int c[8] = {165, 90, 455, 90, 455, 135, 165, 135};
+    int d[8] = {163, 88, 457, 88, 457, 137, 163, 137};
+    char o;
     settextstyle(2, 0, 5);
     setfillstyle(1, 4);
-    fillpoly(4, b);
-    outtextxy(212, 100, " YOU LOSE. RETRY?: YES NO");
-    line(360, 120, 381, 120);
-    for (con = 1;;)
+    switch (sta)
     {
-        c = getch();
-        switch (c)
+    case -1:
+        fillpoly(4, b);
+        outtextxy(212, 100, " YOU LOSE. RETRY?: YES NO");
+        line(360, 120, 381, 120);
+        beep(600, 125);
+        beep(500, 125);
+        beep(400, 125);
+        beep(300, 329);
+        for (con = 1;;)
         {
-        case L:
-            con = 1;
-            fillpoly(4, b);
-            outtextxy(212, 100, " YOU LOSE. RETRY?: YES NO");
-            line(360, 120, 380, 120);
-            break;
+            o = getch();
+            switch (o)
+            {
+            case L:
+                beep(3000, 20);
+                con = 1;
+                fillpoly(4, b);
+                outtextxy(212, 100, " YOU LOSE. RETRY?: YES NO");
+                line(360, 120, 381, 120);
+                break;
 
-        case R:
-            con = -1;
-            fillpoly(4, b);
-            outtextxy(212, 100, " YOU LOSE. RETRY?: YES NO");
-            line(390, 120, 405, 120);
-            break;
+            case R:
+                beep(3000, 20);
+                con = -1;
+                fillpoly(4, b);
+                outtextxy(212, 100, " YOU LOSE. RETRY?: YES NO");
+                line(390, 120, 405, 120);
+                break;
 
-        case 13:
-            if (con != 1)
-                abort();
-            else
-                return con;
+            case 13:
+                beep(1000, 30);
+                beep(900, 30);
+                if (con != 1)
+                    exit(0);
+                else
+                    return con;
+            }
+        }
+    case 1:
+        fillpoly(4, c);
+        outtextxy(169, 102, "BRAVO..WELL DONE: CONTINUE RETRY EXIT");
+        line(304, 121, 365, 121);
+        beep(300, 130);
+        beep(400, 132);
+        beep(500, 130);
+        beep(600, 281);
+        for (con = 1, s = 1;;)
+        {
+            o = getch();
+            switch (o)
+            {
+            case R:
+                beep(3000, 20);
+                if (s != 3)
+                    s++;
+                break;
+            case L:
+                beep(3000, 20);
+                if (s != 1)
+                    s--;
+                break;
+            case 13:
+                beep(1000, 30);
+                beep(900, 30);
+                if (s == 3)
+                    exit(0);
+                else if (s == 1)
+                {
+                    setlinestyle(0, 0, 6);
+                    setcolor(0);
+                    setfillstyle(1, 0);
+                    fillpoly(4, d);
+                    return con;
+                }
+                else
+                    return con;
+            }
+            switch (s)
+            {
+            case 1:
+                con = 1;
+                fillpoly(4, c);
+                outtextxy(169, 102, "BRAVO..WELL DONE: CONTINUE RETRY EXIT");
+                line(304, 121, 365, 121);
+                break;
+
+            case 2:
+                con = 2;
+                fillpoly(4, c);
+                outtextxy(169, 102, "BRAVO..WELL DONE: CONTINUE RETRY EXIT");
+                line(374, 121, 412, 121);
+                break;
+
+            case 3:
+                fillpoly(4, c);
+                outtextxy(169, 102, "BRAVO..WELL DONE: CONTINUE RETRY EXIT");
+                line(421, 121, 450, 121);
+                break;
+            }
         }
     }
+    return 999; // Never mind....
 }
