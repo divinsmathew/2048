@@ -1,4 +1,3 @@
-
 #include <conio.h>
 #include <stdio.h>
 #include <dos.h>
@@ -11,9 +10,8 @@
 #define D 80
 #define R 77
 #define ESC 27
-
-int a[5][5],
-    idle, poly[16][8] = {{200, 150, 255, 150, 255, 205, 200, 205}, {255, 150, 310, 150, 310, 205, 255, 205}, {310, 150, 365, 150, 365, 205, 310, 205}, {365, 150, 420, 150, 420, 205, 365, 205}, {200, 205, 255, 205, 255, 260, 200, 260}, {255, 205, 310, 205, 310, 260, 255, 260}, {310, 205, 365, 205, 365, 260, 310, 260}, {365, 205, 420, 205, 420, 260, 365, 260}, {200, 260, 255, 260, 255, 315, 200, 315}, {255, 260, 310, 260, 310, 315, 255, 315}, {310, 260, 365, 260, 365, 315, 310, 315}, {365, 260, 420, 260, 420, 315, 365, 315}, {200, 315, 255, 315, 255, 370, 200, 370}, {255, 315, 310, 315, 310, 370, 255, 370}, {310, 315, 365, 315, 365, 370, 310, 370}, {365, 315, 420, 315, 420, 370, 365, 370}};
+int a[5][5], idle, poly[16][8] = {{200, 150, 255, 150, 255, 205, 200, 205}, {255, 150, 310, 150, 310, 205, 255, 205}, {310, 150, 365, 150, 365, 205, 310, 205}, {365, 150, 420, 150, 420, 205, 365, 205}, {200, 205, 255, 205, 255, 260, 200, 260}, {255, 205, 310, 205, 310, 260, 255, 260}, {310, 205, 365, 205, 365, 260, 310, 260}, {365, 205, 420, 205, 420, 260, 365, 260}, {200, 260, 255, 260, 255, 315, 200, 315}, {255, 260, 310, 260, 310, 315, 255, 315}, {310, 260, 365, 260, 365, 315, 310, 315}, {365, 260, 420, 260, 420, 315, 365, 315}, {200, 315, 255, 315, 255, 370, 200, 370}, {255, 315, 310, 315, 310, 370, 255, 370}, {310, 315, 365, 315, 365, 370, 310, 370}, {365, 315, 420, 315, 420, 370, 365, 370}};
+long int sc;
 void main()
 {
     void init(), draw(), disp(), status(int);
@@ -23,7 +21,7 @@ void main()
     init();
     disp();
     flushall();
-    for (; c != ESC;)
+    for (sc = 0; c != ESC;)
     {
         idle = 0;
         c = getch();
@@ -47,12 +45,14 @@ void main()
                         if (a[j][i])
                             idle++;
                         a[j][i] *= 2;
+                        sc += a[j][i];
                         for (k = j; k > 0; k--)
                             a[k - 1][i] = a[k - 2][i];
                         a[0][i] = 0;
                     }
+            er = checkran();
             disp();
-            switch (checkran())
+            switch (er)
             {
             case -1:
                 status(-1);
@@ -66,7 +66,6 @@ void main()
             }
             if (er == -1)
                 status(-1);
-            disp();
             break;
 
         case U:
@@ -87,12 +86,14 @@ void main()
                         if (a[j][i])
                             idle++;
                         a[j][i] *= 2;
+                        sc += a[j][i];
                         for (k = j; k < 3; k++)
                             a[k + 1][i] = a[k + 2][i];
                         a[3][i] = 0;
                     }
+            er = checkran();
             disp();
-            switch (checkran())
+            switch (er)
             {
             case -1:
                 status(-1);
@@ -106,7 +107,6 @@ void main()
             }
             if (er == -1)
                 status(-1);
-            disp();
             break;
 
         case R:
@@ -127,12 +127,14 @@ void main()
                         if (a[i][j])
                             idle++;
                         a[i][j] *= 2;
+                        sc += a[i][j];
                         for (k = j; k > 0; k--)
                             a[i][k - 1] = a[i][k - 2];
                         a[i][0] = 0;
                     }
+            er = checkran();
             disp();
-            switch (checkran())
+            switch (er)
             {
             case -1:
                 status(-1);
@@ -146,7 +148,6 @@ void main()
             }
             if (er == -1)
                 status(-1);
-            disp();
             break;
 
         case L:
@@ -167,12 +168,14 @@ void main()
                         if (a[i][j])
                             idle++;
                         a[i][j] *= 2;
+                        sc += a[i][j];
                         for (k = j; k < 3; k++)
                             a[i][k + 1] = a[i][k + 2];
                         a[i][3] = 0;
                     }
+            er = checkran();
             disp();
-            switch (checkran())
+            switch (er)
             {
             case -1:
                 status(-1);
@@ -186,7 +189,6 @@ void main()
             }
             if (er == -1)
                 status(-1);
-            disp();
             break;
         }
     }
@@ -196,19 +198,19 @@ int check(void)
     int i, j;
     for (i = 0; i < 4; i++)
         for (j = 0; j < 4; j++)
-            if (a[i][j] == 0)
-                return 1;
-    for (i = 0; i < 4; i++)
-        for (j = 0; j < 4; j++)
-            if (a[i][j] == a[i][j + 1] || a[i][j] == a[i + 1][j])
+            if (a[i][j] == a[i][j + 1] || a[i][j] == a[i + 1][j] || a[i][j] == 0)
                 return 1;
     return -1;
 }
 int checkran(void)
 {
-    int f = 0, i, j, k;
+    int i, j, k;
     if (idle == 0)
         return 0;
+    for (i = 0; i < 4; i++)
+        for (j = 0; j < 4; j++)
+            if (a[i][j] == 2048)
+                return 1;
     randomize();
     if (random(100) % 2 == 0)
     {
@@ -230,22 +232,11 @@ int checkran(void)
                     return 0;
                 }
     }
-
-    if (f == 0)
-        for (i = 0; i < 4; i++)
-            for (j = 0; j < 4; j++)
-                if (a[i][j] == a[i][j + 1] || a[i][j] == a[i + 1][j])
-                {
-                    f++;
-                    break;
-                }
-    if (f == 0)
-        return -1;
     for (i = 0; i < 4; i++)
         for (j = 0; j < 4; j++)
-            if (a[i][j] == 2048)
-                return 1;
-    return 0;
+            if (a[i][j] == a[i][j + 1] || a[i][j] == a[i + 1][j])
+                return 0;
+    return -1;
 }
 void status(int sta)
 {
@@ -264,14 +255,14 @@ void status(int sta)
 void disp(void)
 {
     int i, j, k, x, y;
-    char buf[] = "blah!";
+    char buf[] = "blah!", BUF[] = "BLAH!";
     settextstyle(1, 0, 1);
-    setcolor(14);
     setlinestyle(0, 0, 3);
-    outtextxy(3, 3, "");
-    for (k = 0, i = 0; i < 4; i++)
-        for (j = 0; j < 4; j++)
+    for (k = 0, y = 160, i = 0; i < 4; i++, y += 56)
+        for (x = 212, j = 0; j < 4; j++, x += 56)
         {
+            sprintf(BUF, "SCORE = %ld", sc);
+            outtextxy(280, 600, buf);
             switch (a[i][j])
             {
             case 0:
@@ -321,10 +312,7 @@ void disp(void)
                 break;
             }
             fillpoly(4, poly[k++]);
-        }
-    setcolor(WHITE);
-    for (y = 160, i = 0; i < 4; i++, y += 56)
-        for (x = 212, j = 0; j < 4; j++, x += 56)
+            setcolor(WHITE);
             if (a[i][j] != 0)
             {
                 sprintf(buf, "%d", a[i][j]);
@@ -339,6 +327,7 @@ void disp(void)
                 else
                     outtextxy(x - 14, y + 3, buf);
             }
+        }
 }
 
 void init(void)
@@ -387,6 +376,7 @@ void init(void)
     settextstyle(0, 0, 7);
     outtextxy(206, 27, "2048");
     setfillstyle(1, 0);
+    setcolor(WHITE);
     for (i = 0; i < 16; i++)
         fillpoly(4, poly[i]);
 }
