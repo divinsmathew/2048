@@ -11,17 +11,18 @@
 #define R 77
 #define ESC 27
 int a[5][5], idle, poly[17][8] = {{200, 150, 255, 150, 255, 205, 200, 205}, {255, 150, 310, 150, 310, 205, 255, 205}, {310, 150, 365, 150, 365, 205, 310, 205}, {365, 150, 420, 150, 420, 205, 365, 205}, {200, 205, 255, 205, 255, 260, 200, 260}, {255, 205, 310, 205, 310, 260, 255, 260}, {310, 205, 365, 205, 365, 260, 310, 260}, {365, 205, 420, 205, 420, 260, 365, 260}, {200, 260, 255, 260, 255, 315, 200, 315}, {255, 260, 310, 260, 310, 315, 255, 315}, {310, 260, 365, 260, 365, 315, 310, 315}, {365, 260, 420, 260, 420, 315, 365, 315}, {200, 315, 255, 315, 255, 370, 200, 370}, {255, 315, 310, 315, 310, 370, 255, 370}, {310, 315, 365, 315, 365, 370, 310, 370}, {365, 315, 420, 315, 420, 370, 365, 370}};
-
+int status(int);
 long int sc;
 void main()
 {
-    void init(), draw(), disp(), status(int);
+    void init(), disp();
     int er, i, j, k, checkran(), check();
     char c;
     clrscr();
     init();
     disp();
     flushall();
+    status(-1);
     for (sc = 0; c != ESC;)
     {
         idle = 0;
@@ -239,19 +240,47 @@ int checkran(void)
                 return 0;
     return -1;
 }
-void status(int sta)
+int status(int sta)
 {
+    int b[8] = {205, 90, 415, 90, 415, 135, 205, 135};
+    char c;
     switch (sta)
     {
-    case 1:
-        printf("bravo!");
-        getch();
-        exit(0);
+        // case 1: fillpoly(4,b); exit(0);
+
     case -1:
-        printf("looser!");
-        getch();
-        exit(0);
+        settextstyle(2, 0, 5);
+        setfillstyle(1, 4);
+        fillpoly(4, b);
+        outtextxy(212, 100, "YOU LOOSE. RETRY?: YES NO");
+        line(360, 120, 381, 120);
+        for (;;)
+        {
+            c = getch();
+            switch (c)
+            {
+            case L:
+                c = 0;
+                fillpoly(4, b);
+                outtextxy(212, 100, "YOU LOOSE. RETRY?: YES NO");
+                line(360, 120, 380, 120);
+                break;
+
+            case R:
+                fillpoly(4, b);
+                outtextxy(212, 100, "YOU LOOSE. RETRY?: YES NO");
+                line(390, 120, 405, 120);
+                break;
+
+            case 13:
+                if (c == 0)
+                    return 3;
+                else
+                    abort();
+            }
+        }
     }
+    return 0;
 }
 void disp(void)
 {
