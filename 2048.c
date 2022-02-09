@@ -36,13 +36,18 @@ void main()
     void init(), disp();
     int s, er, i, j, k, checkran(), check(), status(int);
     char c;
-re:
     flag = 1;
+    goto jump;
+re:
+    flag = 0;
+jump:
     sc = 0;
     clrscr();
     init();
     disp();
     flushall();
+    getch();
+
     for (; c != ESC;)
     {
         idle = 0;
@@ -238,11 +243,11 @@ int checkran(void)
     int i, j, k;
     if (idle == 0)
         return 0;
-    for (i = 0; (i < 4 && flag == 1); i++)
+    for (i = 0; (i < 4 && (flag == 1 || flag == 0)); i++)
         for (j = 0; j < 4; j++)
             if (a[i][j] == 2048)
             {
-                flag--;
+                flag = -1;
                 return 1;
             }
     randomize();
@@ -365,7 +370,8 @@ void beep(int s, int d)
 
 void init(void)
 {
-    int gd, gm, er, i, j;
+    int gd, gm, er, i, j, x, y;
+    int b[8] = {200, 150, 420, 150, 420, 370, 200, 370};
     gd = DETECT;
     gm = DETECT; /* Request auto-detection	*/
     initgraph(&gd, &gm, "");
@@ -385,13 +391,13 @@ void init(void)
     randomize();
     if (random(1398) % 2 == 0)
     {
-        a[2][0] = 4;
+        a[2][0] = 2;
         a[3][1] = 2;
     }
     else if (random(485) % 3 == 0)
     {
-        a[1][1] = 2;
-        a[0][3] = 4;
+        a[1][1] = 4;
+        a[0][3] = 2;
     }
     else if (random(782) % 2 != 0)
     {
@@ -401,12 +407,34 @@ void init(void)
     else
     {
         a[0][2] = 2;
-        a[2][2] = 2;
+        a[2][2] = 4;
     }
+    setlinestyle(0, 0, 3);
     rectangle(1, 1, getmaxx() - 1, getmaxy() - 1);
     rectangle(3, 3, getmaxx() - 3, getmaxy() - 3);
+    rectangle(5, 5, getmaxx() - 5, getmaxy() - 5);
     setcolor(14);
-    setlinestyle(0, 0, 3);
+    if (flag == 1)
+    {
+        settextstyle(0, 0, 7);
+        setfillstyle(1, RED);
+        fillpoly(4, b);
+        outtextxy(205, 170, "2048");
+        settextstyle(0, 0, 1);
+        outtextxy(235, 275, "HIT ENTER TO START!!");
+        outtextxy(265, 330, "From Divins");
+        while (getch() != 13)
+            ;
+        settextstyle(0, 0, 7);
+        for (x = 205, y = 170; y > 26; y--)
+            outtextxy(x, y, "2048");
+        clearviewport();
+    }
+    setcolor(RED);
+    rectangle(1, 1, getmaxx() - 1, getmaxy() - 1);
+    rectangle(3, 3, getmaxx() - 3, getmaxy() - 3);
+    rectangle(5, 5, getmaxx() - 5, getmaxy() - 5);
+    setcolor(14);
     settextstyle(0, 0, 7);
     outtextxy(206, 27, "2048");
     setfillstyle(1, 0);
@@ -427,6 +455,7 @@ int status(int sta)
     switch (sta)
     {
     case -1:
+        flag = 0;
         fillpoly(4, b);
         outtextxy(212, 100, " YOU LOSE. RETRY?: YES NO");
         line(360, 120, 381, 120);
@@ -501,7 +530,10 @@ int status(int sta)
                     return con;
                 }
                 else
+                {
+                    flag = 0;
                     return con;
+                }
             }
             switch (s)
             {
